@@ -17,11 +17,23 @@ public:
 	List()
 	{
 	}
+	List(const List<T>& orig)
+	{
+		Node<T>* cur = orig.first;
+		while (cur != nullptr)
+		{
+			Append(cur->data);
+			cur = cur->next;
+		}
+	}
 	~List()
 	{
-		while (first != nullptr)
+		Node<T>* curNode = first;
+		while (curNode != nullptr)
 		{
-			Remove(last);
+			Node<T>* tmp = curNode;
+			curNode = curNode->next;
+			delete tmp;
 		}
 	}
 
@@ -44,18 +56,35 @@ public:
 
 		length++;
 	}
-	Node<T>* GetNodeAt(size_t index)
+	Node<T>* GetNodeAt(size_t pos)
 	{
-		Node<T>* curNode = first;
-		while (curNode != nullptr)
+		if (pos < length * 2)
 		{
-			if (index == 0)
-				return curNode;
+			// search from the beginning
+			Node<T>* curNode = first;
+			while (curNode != nullptr)
+			{
+				if (pos == 0)
+					return curNode;
 
-			index--;
-			curNode = curNode->next;
+				pos--;
+				curNode = curNode->next;
+			}
 		}
+		else
+		{
+			// search from the end
+			pos = length - pos;
+			Node<T>* curNode = last;
+			while (curNode != nullptr)
+			{
+				if (pos == 0)
+					return curNode;
 
+				pos--;
+				curNode = curNode->prev;
+			}
+		}
 		return nullptr;
 	}
 	void Remove(Node<T>* node)
@@ -63,16 +92,34 @@ public:
 		if (node == nullptr)
 			return;
 
-		if (node->next == nullptr)
-			last = node->prev;
-		else
-			node->next->prev = node->prev;
 
 		if (node->prev == nullptr)
-			first = node->next;
+		{
+			if (node->next == nullptr)
+			{
+				first = nullptr;
+				last = nullptr;
+			}
+			else
+			{
+				first = node->next;
+				node->next->prev = nullptr;
+			}
+		}
 		else
-			node->prev->next = node->next;
-
+		{
+			if (node->next == nullptr)
+			{
+				last = node->prev;
+				node->prev->next = nullptr;
+			}
+			else
+			{
+				node->next->prev = node->prev;
+				node->prev->next = node->next;
+			}
+		}
+		
 		delete node;
 		length--;
 	}
@@ -82,11 +129,29 @@ public:
 		Remove(GetNodeAt(index));
 	}
 
-	//T& operator[]()
-	//{
-	//
-	//}
+	bool Contains(T data)
+	{
+		Node<T>* curNode = first;
+		while (curNode != nullptr)
+		{
+			if (curNode->GetData() == data)
+				return true;
+		}
+		return false;
+	}
 
+	T& operator[](size_t index)
+	{
+		return GetNodeAt(index)->data;
+	}
+	List<T>& operator=(const List<T>& orig)
+	{
+		List<T> tmp(orig);
+		swap(tmp.first, first);
+		swap(tmp.last, last);
+		swap(tmp.length, length);
+		return *this;
+	}
 	friend ostream& operator<<(ostream& ostr, const List<T>& list)
 	{
 		Node<T>* curNode = list.first;

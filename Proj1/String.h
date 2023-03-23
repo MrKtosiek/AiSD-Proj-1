@@ -1,7 +1,7 @@
 #pragma once
 #include "List.h"
 
-class String : List<char>
+class String : public List<char>
 {
 public:
 
@@ -27,17 +27,5 @@ public:
 		{
 			Remove(last);
 		}
-	}
-
-
-	friend ostream& operator<<(ostream& ostr, const String& string)
-	{
-		Node<char>* curNode = string.first;
-		while (curNode != nullptr)
-		{
-			ostr << curNode->GetData();
-			curNode = curNode->GetNext();
-		}
-		return ostr;
 	}
 };
