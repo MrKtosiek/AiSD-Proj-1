@@ -140,7 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="CssSection.cpp" />
+    <ClCompile Include="CssSection.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Node.h" />

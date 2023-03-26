@@ -37,6 +37,10 @@ public:
 		}
 	}
 
+	size_t GetLength()
+	{
+		return length;
+	}
 	void Append(T data)
 	{
 		if (length == 0)
@@ -52,6 +56,25 @@ public:
 			Node<T>* newNode = new Node<T>(data, last, nullptr);
 			last->SetNext(newNode);
 			last = newNode;
+		}
+
+		length++;
+	}
+	void Push(T data)
+	{
+		if (length == 0)
+		{
+			// create the first node
+			Node<T>* newNode = new Node<T>(data, nullptr, nullptr);
+			first = newNode;
+			last = newNode;
+		}
+		else
+		{
+			// add a new node
+			Node<T>* newNode = new Node<T>(data, nullptr, first);
+			first->SetPrev(newNode);
+			first = newNode;
 		}
 
 		length++;
@@ -86,6 +109,14 @@ public:
 			}
 		}
 		return nullptr;
+	}
+	Node<T>* GetLastNode()
+	{
+		return last;
+	}
+	Node<T>* GetFirstNode()
+	{
+		return first;
 	}
 	void Remove(Node<T>* node)
 	{
@@ -125,7 +156,6 @@ public:
 	}
 	void RemoveAt(size_t index)
 	{
-		cout << GetNodeAt(index)->data << endl;
 		Remove(GetNodeAt(index));
 	}
 
@@ -134,9 +164,15 @@ public:
 		Node<T>* curNode = first;
 		while (curNode != nullptr)
 		{
+			//cout << curNode << endl;
 			if (curNode->GetData() == data)
+			{
+				//cout << *this << " contains char: " << data << endl;
 				return true;
+			}
+			curNode = curNode->next;
 		}
+		//cout << *this << " does not contain char: " << data << endl;
 		return false;
 	}
 
