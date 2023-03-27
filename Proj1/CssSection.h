@@ -3,7 +3,7 @@
 
 struct Attribute
 {
-	String name;
+	String property;
 	String value;
 };
 

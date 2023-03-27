@@ -9,20 +9,21 @@ using namespace std;
 
 // reads a string from cin until it reaches one of the endChars
 // doesn't remove the endChar from cin
-String ReadString(String endChars)
+void ReadString(String& str, const String& endChars)
 {
 	//cout << "reading string" << endl;
-	String str;
+	String tmp;
 	char input;
-	while (!endChars.Contains(cin.peek()))
+	while (cin && !endChars.Contains(cin.peek()))
 	{
-		cin >> noskipws >> input;
-		str.Append(input);
+		input = cin.get();
+		tmp.Append(input);
 		//cout << "read char: " << input << endl;
 	}
 
-	//cout << "next char: " << (char)cin.peek() << "(" << cin.peek() << ")" << endl;
-	return str;
+	//cout << "read string: " << tmp << endl;
+
+	str = tmp;
 }
 
 
@@ -36,7 +37,7 @@ void ReadSelectors(CssSection& section)
 	String str;
 	do
 	{
-		str = ReadString(",{");
+		ReadString(str, ",{");
 		str.RemoveEdgeWhitespace();
 
 		if (str.GetLength() > 0)
@@ -61,20 +62,21 @@ void ReadAttributes(CssSection& section)
 	String name;
 	do
 	{
-		name = ReadString(":}");
+		ReadString(name, ":}");
 		name.RemoveEdgeWhitespace();
 
 		if (cin.peek() == ':')
 		{
+			cin.get();
 			Attribute attr;
-			attr.name = name;
-			attr.value = ReadString(";}");
+			attr.property = name;
+			ReadString(attr.value, ";}");
 			attr.value.RemoveEdgeWhitespace();
 
 			section.attributes.Append(attr);
 		}
 
-		if (cin.peek() == ':')
+		if (cin.peek() == ';')
 			cin.get();
 		if (cin.peek() == '}')
 		{
@@ -99,31 +101,154 @@ void ReadSection(List<CssSection>& css)
 ///////////////////////////////////////////////////////////////
 // COMMAND PARSING
 
-void SelectorCommands(List<CssSection>& css, String arg1, String arg3, String& result)
+void SelectorCommands(List<CssSection>& css, const String& arg1, const String& arg3, String& result)
 {
-	if (arg3 == "?")
+	if (arg1.IsInt())
 	{
-		// return number of selectors for section i
-		size_t i = arg1.ToInt();
-		if (i < css.GetLength())
+		if (arg3 == "?")
 		{
-			result = css[i - 1].selectors.GetLength();
+			// return number of selectors for section i
+			size_t i = arg1.ToInt();
+			if (i <= css.GetLength())
+			{
+				result = css[i - 1].selectors.GetLength();
+			}
+		}
+		else
+		{
+			// return value of selector j for section i
+			size_t i = arg1.ToInt();
+			if (i <= css.GetLength())
+			{
+				size_t j = arg3.ToInt();
+				if (j <= css[i - 1].selectors.GetLength())
+				{
+					result = css[i - 1].selectors[j - 1];
+				}
+			}
 		}
 	}
 	else
 	{
-		// return value of selector j for section i
-		size_t i = arg1.ToInt();
-		if (i < css.GetLength())
+		// return number of selector 'arg1' for all sections
+		int count = 0;
+		Node<CssSection>* curSec = css.GetFirstNode();
+		while (curSec != nullptr)
 		{
-			size_t j = arg3.ToInt();
-			if (j < css[i - 1].selectors.GetLength())
+			if (curSec->GetData().selectors.Contains(arg1))
 			{
-				result = css[i - 1].selectors[j - 1];
+				count++;
+			}
+			curSec = curSec->GetNext();
+		}
+		result = count;
+	}
+}
+
+void AttributeCommands(List<CssSection>& css, const String& arg1, const String& arg3, String& result)
+{
+	if (arg1.IsInt())
+	{
+		if (arg3 == "?")
+		{
+			// return number of attributes for section i
+			size_t i = arg1.ToInt();
+			if (i <= css.GetLength())
+			{
+				result = css[i - 1].attributes.GetLength();
+			}
+		}
+		else
+		{
+			// return value of attribute 'arg3' for section i
+			size_t i = arg1.ToInt();
+			if (i <= css.GetLength())
+			{
+				for (Node<Attribute>* curAttr = css[i-1].attributes.GetLastNode(); curAttr != nullptr; curAttr = curAttr->GetPrev())
+				{
+					if (curAttr->GetData().property == arg3)
+					{
+						result = curAttr->GetData().value;
+						break;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		// return number of attributes called 'arg1' for all sections
+		int count = 0;
+		for (Node<CssSection>* curSec = css.GetFirstNode(); curSec != nullptr; curSec = curSec->GetNext())
+		{
+			for (Node<Attribute>* curAttr = curSec->GetData().attributes.GetFirstNode(); curAttr != nullptr; curAttr = curAttr->GetNext())
+			{
+				if (curAttr->GetData().property == arg1)
+				{
+					count++;
+				}
+			}
+		}
+		result = count;
+	}
+}
+
+void EvaluateCommand(List<CssSection>& css, const String& arg1, const String& arg3, String& result)
+{
+	// return value of attribute called 'arg3' for selector called 'arg1'
+	for (Node<CssSection>* curSec = css.GetLastNode(); curSec != nullptr; curSec = curSec->GetPrev())
+	{
+		if (curSec->GetData().selectors.GetLength() == 0 || curSec->GetData().selectors.Contains(arg1))
+		{
+			for (Node<Attribute>* curAttr = curSec->GetData().attributes.GetLastNode(); curAttr != nullptr; curAttr = curAttr->GetPrev())
+			{
+				if (curAttr->GetData().property == arg3)
+				{
+					result = curAttr->GetData().value;
+					return;
+				}
 			}
 		}
 	}
 }
+
+void DeleteCommand(List<CssSection>& css, const String& arg1, const String& arg3, String& result)
+{
+	if (arg3 == "*")
+	{
+		// remove section i
+		size_t i = arg1.ToInt();
+		if (i <= css.GetLength())
+		{
+			css.RemoveAt(i - 1);
+			result = "deleted";
+		}
+	}
+	else
+	{
+		// remove attribute called 'arg3' in section i
+		size_t i = arg1.ToInt();
+		if (i <= css.GetLength())
+		{
+			for (Node<Attribute>* curAttr = css[i - 1].attributes.GetFirstNode(); curAttr != nullptr; curAttr = curAttr->GetNext())
+			{
+				if (curAttr->GetData().property == arg3)
+				{
+					css[i - 1].attributes.Remove(curAttr);
+
+					if (css[i - 1].attributes.GetLength() == 0)
+					{
+						css.RemoveAt(i - 1);
+					}
+
+					result = "deleted";
+					return;
+				}
+			}
+		}
+	}
+}
+
 
 void ReadCommands(List<CssSection>& css)
 {
@@ -133,16 +258,16 @@ void ReadCommands(List<CssSection>& css)
 	String arg2;
 	String arg3;
 
-	while (true)
+	while (cin)
 	{
 		// read arguments
-		arg1 = ReadString(",\n");
+		ReadString(arg1, ",\n");
 		if (cin.peek() == ',')
 		{
 			cin.get();
-			arg2 = ReadString(",\n");
+			ReadString(arg2, ",\n");
 			cin.get();
-			arg3 = ReadString(",\n");
+			ReadString(arg3, ",\n");
 		}
 
 		// single argument commands
@@ -165,15 +290,15 @@ void ReadCommands(List<CssSection>& css)
 			}
 			if (arg2 == "A")
 			{
-
+				AttributeCommands(css, arg1, arg3, result);
 			}
 			if (arg2 == "E")
 			{
-
+				EvaluateCommand(css, arg1, arg3, result);
 			}
 			if (arg2 == "D")
 			{
-
+				DeleteCommand(css, arg1, arg3, result);
 			}
 
 			// print result
@@ -182,8 +307,7 @@ void ReadCommands(List<CssSection>& css)
 		}
 
 		// skip to new line
-		ReadString("\n");
-		cin.get();
+		cin >> ws;
 	}
 }
 
@@ -192,8 +316,7 @@ void ReadInput(List<CssSection>& css)
 {
 	if ((cin >> ws).peek() == '?')
 	{
-		ReadString("\n");
-		cin.get();
+		cin >> ws;
 		ReadCommands(css);
 	}
 	else
@@ -208,10 +331,10 @@ int main()
 {
 	List<CssSection> css;
 
-	while (cin.peek())
+	while (cin)
 	{
 		ReadInput(css);
 	}
-
+	//cout << "test" << endl;
 	return 0;
 }

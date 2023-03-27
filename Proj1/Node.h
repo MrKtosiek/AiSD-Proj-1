@@ -7,20 +7,21 @@ template <typename T>
 class Node
 {
 private:
+	T data;
 	Node<T>* prev = nullptr;
 	Node<T>* next = nullptr;
-	T data;
 
 public:
-	Node<T>(T data, Node<T>* prev, Node<T>* next)
+	Node<T>(const T& data, Node<T>* prev, Node<T>* next)
+		:data(data), prev(prev), next(next) {}
+	Node<T>(const Node<T>& orig)
 	{
-		this->data = data;
-		this->prev = prev;
-		this->next = next;
+		next = orig.next;
+		prev = orig.prev;
+		data = orig.data;
 	}
-	~Node<T>(){}
-	
-	Node* GetNext()
+
+	Node* GetNext() const
 	{
 		return next;
 	}
@@ -29,7 +30,7 @@ public:
 		next = value;
 	}
 	
-	Node* GetPrev()
+	Node* GetPrev() const
 	{
 		return prev;
 	}
@@ -38,13 +39,22 @@ public:
 		prev = value;
 	}
 
-	T GetData()
+	T& GetData()
 	{
 		return data;
 	}
-	void SetData(T value)
+	void SetData(const T& value)
 	{
 		data = value;
+	}
+
+	Node<T>& operator=(const Node<T>& orig)
+	{
+		Node<T> tmp(orig);
+		swap(tmp.next, next);
+		swap(tmp.prev, prev);
+		swap(tmp.data, data);
+		return *this;
 	}
 
 	template <typename T>

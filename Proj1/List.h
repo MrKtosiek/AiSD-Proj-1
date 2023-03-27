@@ -37,7 +37,7 @@ public:
 		}
 	}
 
-	size_t GetLength()
+	size_t GetLength() const
 	{
 		return length;
 	}
@@ -79,7 +79,7 @@ public:
 
 		length++;
 	}
-	Node<T>* GetNodeAt(size_t pos)
+	Node<T>* GetNodeAt(size_t pos) const
 	{
 		if (pos < length * 2)
 		{
@@ -110,11 +110,11 @@ public:
 		}
 		return nullptr;
 	}
-	Node<T>* GetLastNode()
+	Node<T>* GetLastNode() const
 	{
 		return last;
 	}
-	Node<T>* GetFirstNode()
+	Node<T>* GetFirstNode() const
 	{
 		return first;
 	}
@@ -159,7 +159,7 @@ public:
 		Remove(GetNodeAt(index));
 	}
 
-	bool Contains(T data)
+	bool Contains(const T& data) const
 	{
 		Node<T>* curNode = first;
 		while (curNode != nullptr)
@@ -176,7 +176,7 @@ public:
 		return false;
 	}
 
-	T& operator[](size_t index)
+	T& operator[](size_t index) const
 	{
 		return GetNodeAt(index)->data;
 	}
