@@ -67,9 +67,20 @@ void ReadAttributes(CssSection& section)
 
 		if (cin.peek() == ':')
 		{
+			Node<Attribute>* curAttr = section.attributes.GetFirstNode();
+			while (curAttr != nullptr)
+			{
+				Node<Attribute>* tmp = curAttr->GetNext();
+				if (curAttr->GetData().name == name)
+				{
+					section.attributes.Remove(curAttr);
+				}
+				curAttr = tmp;
+			}
+
 			cin.get();
 			Attribute attr;
-			attr.property = name;
+			attr.name = name;
 			ReadString(attr.value, ";}");
 			attr.value.RemoveEdgeWhitespace();
 
@@ -85,6 +96,32 @@ void ReadAttributes(CssSection& section)
 		}
 
 	} while (name.GetLength() > 0);
+}
+
+bool CheckLineForGlobalAttribute()
+{
+
+}
+
+void ReadGlobalAttributes(List<CssSection>& css)
+{
+	CssSection section;
+	String name;
+	String value;
+
+	ReadString(name, ":");
+	name.RemoveEdgeWhitespace();
+	cin.get();
+	ReadString(value, ";");
+	value.RemoveEdgeWhitespace();
+	cin.get();
+
+	Attribute attr;
+	attr.name = name;
+	attr.value = value;
+	section.attributes.Append(attr);
+
+	css.Append(section);
 }
 
 void ReadSection(List<CssSection>& css)
@@ -166,7 +203,7 @@ void AttributeCommands(List<CssSection>& css, const String& arg1, const String& 
 			{
 				for (Node<Attribute>* curAttr = css[i-1].attributes.GetLastNode(); curAttr != nullptr; curAttr = curAttr->GetPrev())
 				{
-					if (curAttr->GetData().property == arg3)
+					if (curAttr->GetData().name == arg3)
 					{
 						result = curAttr->GetData().value;
 						break;
@@ -183,7 +220,7 @@ void AttributeCommands(List<CssSection>& css, const String& arg1, const String& 
 		{
 			for (Node<Attribute>* curAttr = curSec->GetData().attributes.GetFirstNode(); curAttr != nullptr; curAttr = curAttr->GetNext())
 			{
-				if (curAttr->GetData().property == arg1)
+				if (curAttr->GetData().name == arg1)
 				{
 					count++;
 				}
@@ -202,7 +239,7 @@ void EvaluateCommand(List<CssSection>& css, const String& arg1, const String& ar
 		{
 			for (Node<Attribute>* curAttr = curSec->GetData().attributes.GetLastNode(); curAttr != nullptr; curAttr = curAttr->GetPrev())
 			{
-				if (curAttr->GetData().property == arg3)
+				if (curAttr->GetData().name == arg3)
 				{
 					result = curAttr->GetData().value;
 					return;
@@ -232,7 +269,7 @@ void DeleteCommand(List<CssSection>& css, const String& arg1, const String& arg3
 		{
 			for (Node<Attribute>* curAttr = css[i - 1].attributes.GetFirstNode(); curAttr != nullptr; curAttr = curAttr->GetNext())
 			{
-				if (curAttr->GetData().property == arg3)
+				if (curAttr->GetData().name == arg3)
 				{
 					css[i - 1].attributes.Remove(curAttr);
 
@@ -254,12 +291,12 @@ void ReadCommands(List<CssSection>& css)
 {
 	//cout << "reading commands" << endl;
 
-	String arg1;
-	String arg2;
-	String arg3;
-
 	while (cin)
 	{
+		String arg1;
+		String arg2;
+		String arg3;
+
 		// read arguments
 		ReadString(arg1, ",\n");
 		if (cin.peek() == ',')
