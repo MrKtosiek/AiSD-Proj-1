@@ -79,16 +79,21 @@ public:
 	// removes leading and trailing whitespace
 	void RemoveEdgeWhitespace()
 	{
+		if (length == 0)
+		{
+			return;
+		}
+
 		String tmp;
 		size_t start = 0;
 		size_t end = length - 1;
 
 		// skip leading whitespace
-		while (isspace(chars[start]) && start < length)
+		while ((isspace(chars[start]) || chars[start] < ' ') && start < length)
 		{
 			start++;
 		}
-		while (isspace(chars[end]) && end > 0)
+		while ((isspace(chars[end]) || chars[end] < ' ') && end > 0)
 		{
 			end--;
 		}
@@ -98,14 +103,16 @@ public:
 			tmp.Append(chars[i]);
 		}
 
-		*this = tmp;
+		swap(tmp.chars, chars);
+		swap(tmp.capacity, capacity);
+		swap(tmp.length, length);
 	}
 
 	bool IsInt() const
 	{
 		for (size_t i = 0; i < length; i++)
 		{
-			if (chars[i] <= '0' || chars[i] >= '9')
+			if (chars[i] < '0' || chars[i] > '9')
 			{
 				return false;
 			}
@@ -127,6 +134,10 @@ public:
 		}
 		return value;
 	}
+	char* GetChars() const
+	{
+		return chars;
+	}
 
 	bool operator==(const String& other) const
 	{
@@ -143,14 +154,15 @@ public:
 
 		return true;
 	}
-	String& operator=(int orig)
+	String& operator=(const int orig)
 	{
+		int value = orig;
 		do
 		{
-			Append((orig % 10) + '0');
-			orig /= 10;
+			Append((value % 10) + '0');
+			value /= 10;
 
-		} while (orig != 0);
+		} while (value != 0);
 
 		// flip the string
 		for (size_t i = 0; i < length / 2; i++)

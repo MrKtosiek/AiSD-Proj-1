@@ -199,4 +199,3 @@ public:
 		return ostr;
 	}
 };
-

@@ -13,11 +13,12 @@ void ReadString(String& str, const String& endChars)
 {
 	//cout << "reading string" << endl;
 	String tmp;
-	char input;
+	
 	while (cin && !endChars.Contains(cin.peek()))
 	{
-		input = cin.get();
-		tmp.Append(input);
+		char input = cin.get();
+		if (!cin.eof())
+			tmp.Append(input);
 		//cout << "read char: " << input << endl;
 	}
 
@@ -98,41 +99,16 @@ void ReadAttributes(CssSection& section)
 	} while (name.GetLength() > 0);
 }
 
-bool CheckLineForGlobalAttribute()
-{
-
-}
-
-void ReadGlobalAttributes(List<CssSection>& css)
-{
-	CssSection section;
-	String name;
-	String value;
-
-	ReadString(name, ":");
-	name.RemoveEdgeWhitespace();
-	cin.get();
-	ReadString(value, ";");
-	value.RemoveEdgeWhitespace();
-	cin.get();
-
-	Attribute attr;
-	attr.name = name;
-	attr.value = value;
-	section.attributes.Append(attr);
-
-	css.Append(section);
-}
-
 void ReadSection(List<CssSection>& css)
 {
 	CssSection section;
-	
+
 	ReadSelectors(section);
 	ReadAttributes(section);
 
 	css.Append(section);
 }
+
 
 
 ///////////////////////////////////////////////////////////////
@@ -293,9 +269,9 @@ void ReadCommands(List<CssSection>& css)
 
 	while (cin)
 	{
-		String arg1;
-		String arg2;
-		String arg3;
+		String arg1 = " ";
+		String arg2 = " ";
+		String arg3 = " ";
 
 		// read arguments
 		ReadString(arg1, ",\n");
@@ -305,6 +281,13 @@ void ReadCommands(List<CssSection>& css)
 			ReadString(arg2, ",\n");
 			cin.get();
 			ReadString(arg3, ",\n");
+		}
+
+		if (arg1.GetLength() == 0)
+		{
+			ReadString(arg1, "\n");
+			cin >> ws;
+			continue;
 		}
 
 		// single argument commands
@@ -349,6 +332,8 @@ void ReadCommands(List<CssSection>& css)
 }
 
 
+
+
 void ReadInput(List<CssSection>& css)
 {
 	if ((cin >> ws).peek() == '?')
@@ -372,6 +357,6 @@ int main()
 	{
 		ReadInput(css);
 	}
-	//cout << "test" << endl;
+
 	return 0;
 }
