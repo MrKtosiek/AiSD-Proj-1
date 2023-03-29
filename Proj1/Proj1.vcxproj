@@ -143,6 +143,8 @@
     <ClCompile Include="CssSection.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BlockList.h" />
+    <ClInclude Include="BlockNode.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="String.h" />

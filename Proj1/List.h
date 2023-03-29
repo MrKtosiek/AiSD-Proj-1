@@ -19,11 +19,9 @@ public:
 	}
 	List(const List<T>& orig)
 	{
-		Node<T>* cur = orig.first;
-		while (cur != nullptr)
+		for (Node<T>* cur = orig.first; cur != nullptr; cur = cur->next)
 		{
 			Append(cur->data);
-			cur = cur->next;
 		}
 	}
 	~List()
@@ -60,52 +58,29 @@ public:
 
 		length++;
 	}
-	void Push(T data)
-	{
-		if (length == 0)
-		{
-			// create the first node
-			Node<T>* newNode = new Node<T>(data, nullptr, nullptr);
-			first = newNode;
-			last = newNode;
-		}
-		else
-		{
-			// add a new node
-			Node<T>* newNode = new Node<T>(data, nullptr, first);
-			first->SetPrev(newNode);
-			first = newNode;
-		}
-
-		length++;
-	}
 	Node<T>* GetNodeAt(size_t pos) const
 	{
 		if (pos < length * 2)
 		{
 			// search from the beginning
-			Node<T>* curNode = first;
-			while (curNode != nullptr)
+			for (Node<T>* curNode = first; curNode != nullptr; curNode = curNode->next)
 			{
 				if (pos == 0)
 					return curNode;
 
 				pos--;
-				curNode = curNode->next;
 			}
 		}
 		else
 		{
 			// search from the end
 			pos = length - pos;
-			Node<T>* curNode = last;
-			while (curNode != nullptr)
+			for (Node<T>* curNode = last; curNode != nullptr; curNode = curNode->prev)
 			{
 				if (pos == 0)
 					return curNode;
 
 				pos--;
-				curNode = curNode->prev;
 			}
 		}
 		return nullptr;
@@ -161,8 +136,7 @@ public:
 
 	bool Contains(const T& data) const
 	{
-		Node<T>* curNode = first;
-		while (curNode != nullptr)
+		for (Node<T>* curNode = first; curNode != nullptr; curNode = curNode->next)
 		{
 			//cout << curNode << endl;
 			if (curNode->GetData() == data)
@@ -170,7 +144,6 @@ public:
 				//cout << *this << " contains char: " << data << endl;
 				return true;
 			}
-			curNode = curNode->next;
 		}
 		//cout << *this << " does not contain char: " << data << endl;
 		return false;
@@ -190,12 +163,76 @@ public:
 	}
 	friend ostream& operator<<(ostream& ostr, const List<T>& list)
 	{
-		Node<T>* curNode = list.first;
-		while (curNode != nullptr)
+		for (Node<T>* curNode = list.first; curNode != nullptr; curNode = curNode->GetNext())
 		{
 			ostr << curNode->GetData();
-			curNode = curNode->GetNext();
 		}
 		return ostr;
+	}
+	
+	
+	class Iterator
+	{
+	private:
+		Node<T>* curNode;
+	public:
+		Iterator(Node<T>* curNode) : curNode(curNode) {}
+
+		Iterator& operator=(Node<T>* node)
+		{
+			this->curNode = node;
+			return *this;
+		}
+
+		// Prefix ++ overload
+		Iterator& operator++()
+		{
+			if (curNode)
+				curNode = curNode->next;
+			return *this;
+		}
+		// Postfix ++ overload
+		Iterator operator++(int)
+		{
+			Iterator iterator = *this;
+			++* this;
+			return iterator;
+		}
+		// Prefix -- overload
+		Iterator& operator--()
+		{
+			if (curNode)
+				curNode = curNode->prev;
+			return *this;
+		}
+		// Postfix -- overload
+		Iterator operator--(int)
+		{
+			Iterator iterator = *this;
+			--* this;
+			return iterator;
+		}
+
+		bool operator!=(const Iterator& iterator)
+		{
+			return curNode != iterator.curNode;
+		}
+
+		T& operator*()
+		{
+			return curNode->data;
+		}
+	};
+	Iterator begin()
+	{
+		return Iterator(first);
+	}
+	Iterator beginReversed()
+	{
+		return Iterator(last);
+	}
+	Iterator end()
+	{
+		return Iterator(nullptr);
 	}
 };

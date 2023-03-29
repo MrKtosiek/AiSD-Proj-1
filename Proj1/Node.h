@@ -1,8 +1,6 @@
 #pragma once
 #include "List.h"
 
-const size_t blockSize = 8;
-
 template <typename T>
 class Node
 {

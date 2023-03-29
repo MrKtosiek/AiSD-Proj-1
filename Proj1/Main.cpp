@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string.h>
 #include "List.h"
+#include "BlockList.h"
 #include "String.h"
 #include "CssSection.h"
 
@@ -99,7 +100,7 @@ void ReadAttributes(CssSection& section)
 	} while (name.GetLength() > 0);
 }
 
-void ReadSection(List<CssSection>& css)
+void ReadSection(BlockList<CssSection>& css)
 {
 	CssSection section;
 
@@ -114,7 +115,7 @@ void ReadSection(List<CssSection>& css)
 ///////////////////////////////////////////////////////////////
 // COMMAND PARSING
 
-void SelectorCommands(List<CssSection>& css, const String& arg1, const String& arg3, String& result)
+void SelectorCommands(BlockList<CssSection>& css, const String& arg1, const String& arg3, String& result)
 {
 	if (arg1.IsInt())
 	{
@@ -145,20 +146,18 @@ void SelectorCommands(List<CssSection>& css, const String& arg1, const String& a
 	{
 		// return number of selector 'arg1' for all sections
 		int count = 0;
-		Node<CssSection>* curSec = css.GetFirstNode();
-		while (curSec != nullptr)
+		for (BlockList<CssSection>::Iterator i = css.begin(); i != css.end(); i++)
 		{
-			if (curSec->GetData().selectors.Contains(arg1))
+			if ((*i).selectors.Contains(arg1))
 			{
 				count++;
 			}
-			curSec = curSec->GetNext();
 		}
 		result = count;
 	}
 }
 
-void AttributeCommands(List<CssSection>& css, const String& arg1, const String& arg3, String& result)
+void AttributeCommands(BlockList<CssSection>& css, const String& arg1, const String& arg3, String& result)
 {
 	if (arg1.IsInt())
 	{
@@ -177,11 +176,12 @@ void AttributeCommands(List<CssSection>& css, const String& arg1, const String& 
 			size_t i = arg1.ToInt();
 			if (i <= css.GetLength())
 			{
-				for (Node<Attribute>* curAttr = css[i-1].attributes.GetLastNode(); curAttr != nullptr; curAttr = curAttr->GetPrev())
+				List<Attribute> attributes = css[i - 1].attributes;
+				for (List<Attribute>::Iterator i = attributes.begin(); i != attributes.end(); i--)
 				{
-					if (curAttr->GetData().name == arg3)
+					if ((*i).name == arg3)
 					{
-						result = curAttr->GetData().value;
+						result = (*i).value;
 						break;
 					}
 				}
@@ -192,11 +192,12 @@ void AttributeCommands(List<CssSection>& css, const String& arg1, const String& 
 	{
 		// return number of attributes called 'arg1' for all sections
 		int count = 0;
-		for (Node<CssSection>* curSec = css.GetFirstNode(); curSec != nullptr; curSec = curSec->GetNext())
+		for (BlockList<CssSection>::Iterator i = css.begin(); i != css.end(); i++)
 		{
-			for (Node<Attribute>* curAttr = curSec->GetData().attributes.GetFirstNode(); curAttr != nullptr; curAttr = curAttr->GetNext())
+			List<Attribute> attributes = (*i).attributes;
+			for (List<Attribute>::Iterator j = attributes.begin(); j != attributes.end(); j++)
 			{
-				if (curAttr->GetData().name == arg1)
+				if ((*j).name == arg1)
 				{
 					count++;
 				}
@@ -206,18 +207,19 @@ void AttributeCommands(List<CssSection>& css, const String& arg1, const String& 
 	}
 }
 
-void EvaluateCommand(List<CssSection>& css, const String& arg1, const String& arg3, String& result)
+void EvaluateCommand(BlockList<CssSection>& css, const String& arg1, const String& arg3, String& result)
 {
 	// return value of attribute called 'arg3' for selector called 'arg1'
-	for (Node<CssSection>* curSec = css.GetLastNode(); curSec != nullptr; curSec = curSec->GetPrev())
+	for (BlockList<CssSection>::Iterator i = css.beginReversed(); i != css.end(); i--)
 	{
-		if (curSec->GetData().selectors.GetLength() == 0 || curSec->GetData().selectors.Contains(arg1))
+		if ((*i).selectors.GetLength() == 0 || (*i).selectors.Contains(arg1))
 		{
-			for (Node<Attribute>* curAttr = curSec->GetData().attributes.GetLastNode(); curAttr != nullptr; curAttr = curAttr->GetPrev())
+			List<Attribute> attributes = (*i).attributes;
+			for (List<Attribute>::Iterator j = attributes.beginReversed(); j != attributes.end(); j--)
 			{
-				if (curAttr->GetData().name == arg3)
+				if ((*j).name == arg3)
 				{
-					result = curAttr->GetData().value;
+					result = (*j).value;
 					return;
 				}
 			}
@@ -225,7 +227,7 @@ void EvaluateCommand(List<CssSection>& css, const String& arg1, const String& ar
 	}
 }
 
-void DeleteCommand(List<CssSection>& css, const String& arg1, const String& arg3, String& result)
+void DeleteCommand(BlockList<CssSection>& css, const String& arg1, const String& arg3, String& result)
 {
 	if (arg3 == "*")
 	{
@@ -263,7 +265,7 @@ void DeleteCommand(List<CssSection>& css, const String& arg1, const String& arg3
 }
 
 
-void ReadCommands(List<CssSection>& css)
+void ReadCommands(BlockList<CssSection>& css)
 {
 	//cout << "reading commands" << endl;
 
@@ -334,7 +336,7 @@ void ReadCommands(List<CssSection>& css)
 
 
 
-void ReadInput(List<CssSection>& css)
+void ReadInput(BlockList<CssSection>& css)
 {
 	if ((cin >> ws).peek() == '?')
 	{
@@ -351,7 +353,7 @@ void ReadInput(List<CssSection>& css)
 
 int main()
 {
-	List<CssSection> css;
+	BlockList<CssSection> css;
 
 	while (cin)
 	{
