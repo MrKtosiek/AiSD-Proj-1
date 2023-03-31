@@ -94,7 +94,6 @@ public:
 		}
 		return nullptr;
 	}
-
 	BlockNode<T>* GetNodeAt(size_t pos) const
 	{
 		if (pos < blockCount * 2)
@@ -122,17 +121,15 @@ public:
 		}
 		return nullptr;
 	}
-
 	BlockNode<T>* GetLastNode() const
 	{
 		return last;
 	}
-
 	BlockNode<T>* GetFirstNode() const
 	{
 		return first;
 	}
-
+	
 	void RemoveNode(BlockNode<T>* node)
 	{
 		if (node == nullptr)
@@ -169,7 +166,6 @@ public:
 		delete node;
 		blockCount--;
 	}
-
 	void RemoveAt(size_t index)
 	{
 		BlockNode<T>* node = GetNodeContaining(index);
@@ -184,7 +180,6 @@ public:
 			}
 		}
 	}
-
 	bool Contains(const T& data) const
 	{
 		for (BlockNode<T>* curNode = first; curNode != nullptr; curNode = curNode->next)
@@ -262,7 +257,7 @@ public:
 			return *this;
 		}
 
-		bool operator!=(const Iterator& iterator)
+		bool operator!=(const Iterator& iterator) const
 		{
 			return curNode != iterator.curNode;
 		}
@@ -280,7 +275,7 @@ public:
 	{
 		return Iterator(last->elementCount - 1, last);
 	}
-	Iterator end()
+	static Iterator end()
 	{
 		return Iterator(0, nullptr);
 	}

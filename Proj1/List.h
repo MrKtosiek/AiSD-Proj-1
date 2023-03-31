@@ -176,7 +176,7 @@ public:
 	private:
 		Node<T>* curNode;
 	public:
-		Iterator(Node<T>* curNode) : curNode(curNode) {}
+		explicit Iterator(Node<T>* curNode) : curNode(curNode) {}
 
 		Iterator& operator=(Node<T>* node)
 		{
@@ -197,7 +197,7 @@ public:
 			return *this;
 		}
 
-		bool operator!=(const Iterator& iterator)
+		bool operator!=(const Iterator& iterator) const
 		{
 			return curNode != iterator.curNode;
 		}
@@ -215,7 +215,7 @@ public:
 	{
 		return Iterator(last);
 	}
-	Iterator end()
+	static Iterator end()
 	{
 		return Iterator(nullptr);
 	}

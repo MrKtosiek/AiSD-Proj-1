@@ -36,7 +36,7 @@ public:
 	}
 
 	// check if there is space at the end of the block
-	bool IsFull()
+	bool IsFull() const
 	{
 		return isUsed[blockSize - 1];
 	}
@@ -72,7 +72,7 @@ public:
 		}
 	}
 
-	bool Contains(const T& element)
+	bool Contains(const T& element) const
 	{
 		for (size_t i = 0; i < elementCount; i++)
 		{
@@ -95,7 +95,7 @@ public:
 	T& operator[](size_t index)
 	{
 		size_t i;
-		for (i = 0; i < blockSize; i++)
+		for (i = 0; i < blockSize - 1; i++)
 		{
 			if (!isUsed[i])
 				continue;

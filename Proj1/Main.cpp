@@ -13,7 +13,6 @@ using namespace std;
 // doesn't remove the endChar from cin
 void ReadString(String& str, const String& endChars)
 {
-	//cout << "reading string" << endl;
 	String tmp;
 	
 	while (cin && !endChars.Contains(cin.peek()))
@@ -21,11 +20,7 @@ void ReadString(String& str, const String& endChars)
 		char input = cin.get();
 		if (!cin.eof())
 			tmp.Append(input);
-		//cout << "read char: " << input << endl;
 	}
-
-	//cout << "read string: " << tmp << endl;
-
 	str = tmp;
 }
 
@@ -36,7 +31,6 @@ void ReadString(String& str, const String& endChars)
 
 void ReadSelectors(CssSection& section)
 {
-	//cout << "reading selectors" << endl;
 	String str;
 	do
 	{
@@ -61,7 +55,6 @@ void ReadSelectors(CssSection& section)
 
 void ReadAttributes(CssSection& section)
 {
-	//cout << "reading attributes" << endl;
 	String name;
 	do
 	{
@@ -180,11 +173,11 @@ void AttributeCommands(BlockList<CssSection>& css, const String& arg1, const Str
 			if (i <= css.GetLength())
 			{
 				List<Attribute> attributes = css[i - 1].attributes;
-				for (List<Attribute>::Iterator i = attributes.beginReversed(); i != attributes.end(); --i)
+				for (List<Attribute>::Iterator j = attributes.beginReversed(); j != attributes.end(); --j)
 				{
-					if ((*i).name == arg3)
+					if ((*j).name == arg3)
 					{
-						result = (*i).value;
+						result = (*j).value;
 						break;
 					}
 				}
@@ -270,8 +263,6 @@ void DeleteCommand(BlockList<CssSection>& css, const String& arg1, const String&
 
 void ReadCommands(BlockList<CssSection>& css)
 {
-	//cout << "reading commands" << endl;
-
 	while (cin)
 	{
 		String arg1 = " ";
