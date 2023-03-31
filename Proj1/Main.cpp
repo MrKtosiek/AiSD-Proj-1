@@ -17,7 +17,7 @@ void ReadString(String& str, const String& endChars)
 	
 	while (cin && !endChars.Contains(cin.peek()))
 	{
-		char input = cin.get();
+		char input = getchar();
 		if (!cin.eof())
 			tmp.Append(input);
 	}
@@ -43,10 +43,10 @@ void ReadSelectors(CssSection& section)
 		}
 
 		if (cin.peek() == ',')
-			cin.get();
+			getchar();
 		if (cin.peek() == '{')
 		{
-			cin.get();
+			getchar();
 			return;
 		}
 
@@ -63,7 +63,7 @@ void ReadAttributes(CssSection& section)
 
 		if (cin.peek() == ':')
 		{
-			cin.get();
+			getchar();
 
 			Attribute attr;
 			attr.name = name;
@@ -86,10 +86,10 @@ void ReadAttributes(CssSection& section)
 		}
 
 		if (cin.peek() == ';')
-			cin.get();
+			getchar();
 		if (cin.peek() == '}')
 		{
-			cin.get();
+			getchar();
 			return;
 		}
 
@@ -273,9 +273,9 @@ void ReadCommands(BlockList<CssSection>& css)
 		ReadString(arg1, ",\n");
 		if (cin.peek() == ',')
 		{
-			cin.get();
+			getchar();
 			ReadString(arg2, ",\n");
-			cin.get();
+			getchar();
 			ReadString(arg3, ",\n");
 		}
 
@@ -289,12 +289,11 @@ void ReadCommands(BlockList<CssSection>& css)
 		// single argument commands
 		if (arg1 == "****")
 		{
-			//cout << "finish reading commands" << endl;
 			return;
 		}
 		else if (arg1 == "?")
 		{
-			cout << arg1 << " == " << css.GetLength() << endl;
+			cout << arg1 << " == " << css.GetLength() << '\n';
 		}
 		else
 		{
@@ -319,7 +318,7 @@ void ReadCommands(BlockList<CssSection>& css)
 
 			// print result
 			if (result.GetLength() > 0)
-				cout << arg1 << "," << arg2 << "," << arg3 << " == " << result << endl;
+				cout << arg1 << "," << arg2 << "," << arg3 << " == " << result << '\n';
 		}
 
 		// skip to new line
@@ -347,6 +346,9 @@ void ReadInput(BlockList<CssSection>& css)
 
 int main()
 {
+	iostream::sync_with_stdio(false);
+	cin.tie(nullptr);
+
 	BlockList<CssSection> css;
 
 	while (cin)
