@@ -35,13 +35,53 @@ public:
 		prev = value;
 	}
 
-	T& GetData(size_t index)
+	// check if there is space at the end of the block
+	bool IsFull()
 	{
-		return data[index];
+		return isUsed[blockSize - 1];
 	}
-	void SetData(size_t index, const T& value)
+	void AddElement(T& element)
 	{
-		data[index] = value;
+		int i;
+		for (i = blockSize - 2; i >= 0; i--)
+		{
+			if (isUsed[i])
+			{
+				break;
+			}
+		}
+
+		data[i + 1] = element;
+		isUsed[i + 1] = true;
+		elementCount++;
+	}
+	void RemoveElement(size_t index)
+	{
+		size_t i;
+		for (i = 0; i < blockSize; i++)
+		{
+			if (!isUsed[i])
+				continue;
+			if (index == 0)
+			{
+				isUsed[i] = false;
+				elementCount--;
+				break;
+			}
+			index--;
+		}
+	}
+
+	bool Contains(const T& element)
+	{
+		for (size_t i = 0; i < elementCount; i++)
+		{
+			if (isUsed[i] && data[i] == element)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	BlockNode<T>& operator=(const BlockNode<T>& orig)
@@ -54,14 +94,16 @@ public:
 	}
 	T& operator[](size_t index)
 	{
-		size_t cursor = 0;
-		for (size_t i = 0; i < blockSize; i++)
+		size_t i;
+		for (i = 0; i < blockSize; i++)
 		{
 			if (!isUsed[i])
 				continue;
-			cursor++;
+			if (index == 0)
+				return data[i];
+			index--;
 		}
-		return data[cursor];
+		return data[i];
 	}
 
 	template <typename T>

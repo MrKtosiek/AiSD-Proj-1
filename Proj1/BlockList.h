@@ -40,9 +40,24 @@ public:
 	{
 		return length;
 	}
-	void Append(T data)
+	void Append(T& data)
 	{
 		if (length == 0)
+		{
+			AddNode();
+		}
+
+		if (last->IsFull())
+		{
+			AddNode();
+		}
+
+		last->AddElement(data);
+		length++;
+	}
+	void AddNode()
+	{
+		if (blockCount == 0)
 		{
 			// create the first node
 			BlockNode<T>* newNode = new BlockNode<T>(nullptr, nullptr);
@@ -57,11 +72,32 @@ public:
 			last = newNode;
 		}
 
-		length++;
+		blockCount++;
 	}
+
+	// returns the found node and replaces the input index with the index of the element in the node
+	BlockNode<T>* GetNodeContaining(size_t& index) const
+	{
+		BlockNode<T>* curNode = first;
+		while (curNode != nullptr)
+		{
+			if (index >= curNode->elementCount)
+			{
+				index -= curNode->elementCount;
+				curNode = curNode->next;
+			}
+			else
+			{
+				//index--;
+				return curNode;
+			}
+		}
+		return nullptr;
+	}
+
 	BlockNode<T>* GetNodeAt(size_t pos) const
 	{
-		if (pos < length * 2)
+		if (pos < blockCount * 2)
 		{
 			// search from the beginning
 			for (BlockNode<T>* curNode = first; curNode != nullptr; curNode = curNode->next)
@@ -75,7 +111,7 @@ public:
 		else
 		{
 			// search from the end
-			pos = length - pos;
+			pos = blockCount - pos;
 			for (BlockNode<T>* curNode = last; curNode != nullptr; curNode = curNode->prev)
 			{
 				if (pos == 0)
@@ -86,32 +122,18 @@ public:
 		}
 		return nullptr;
 	}
-	BlockNode<T>* GetNodeContaining(size_t index) const
-	{
-		BlockNode<T>* curNode = first;
-		while (curNode != nullptr)
-		{
-			if (index >= curNode->elementCount)
-			{
-				index -= curNode->elementCount;
-				curNode = curNode->next;
-			}
-			else
-			{
-				return curNode;
-			}
-		}
-		return nullptr;
-	}
+
 	BlockNode<T>* GetLastNode() const
 	{
 		return last;
 	}
+
 	BlockNode<T>* GetFirstNode() const
 	{
 		return first;
 	}
-	void Remove(BlockNode<T>* node)
+
+	void RemoveNode(BlockNode<T>* node)
 	{
 		if (node == nullptr)
 			return;
@@ -145,11 +167,22 @@ public:
 		}
 
 		delete node;
-		length--;
+		blockCount--;
 	}
+
 	void RemoveAt(size_t index)
 	{
-		Remove(GetNodeAt(index));
+		BlockNode<T>* node = GetNodeContaining(index);
+		if (node)
+		{
+			node->RemoveElement(index);
+			length--;
+
+			if (node->elementCount == 0)
+			{
+				RemoveNode(node);
+			}
+		}
 	}
 
 	bool Contains(const T& data) const
@@ -157,7 +190,7 @@ public:
 		for (BlockNode<T>* curNode = first; curNode != nullptr; curNode = curNode->next)
 		{
 			//cout << curNode << endl;
-			if (curNode->GetData() == data)
+			if (curNode->Contains(data))
 			{
 				//cout << *this << " contains char: " << data << endl;
 				return true;
@@ -169,19 +202,8 @@ public:
 
 	T& operator[](size_t index) const
 	{
-		BlockNode<T>* curNode = first;
-		while (curNode != nullptr)
-		{
-			if (index >= curNode->elementCount)
-			{
-				index -= curNode->elementCount;
-				curNode = curNode->next;
-			}
-			else
-			{
-				return (*curNode)[index];
-			}
-		}
+		BlockNode<T>* node = GetNodeContaining(index);
+		return (*node)[index];
 	}
 	BlockList<T>& operator=(const BlockList<T>& orig)
 	{
@@ -215,34 +237,29 @@ public:
 			return *this;
 		}
 
-		// Prefix ++ overload
 		Iterator& operator++()
 		{
 			curElement++;
-			if (curNode)
+			if (curElement >= curNode->elementCount)
+			{
 				curNode = curNode->next;
+				curElement = 0;
+			}
 			return *this;
 		}
-		// Postfix ++ overload
-		Iterator operator++(int)
-		{
-			Iterator iterator = *this;
-			++* this;
-			return iterator;
-		}
-		// Prefix -- overload
 		Iterator& operator--()
 		{
-			if (curNode)
+			if (curElement == 0)
+			{
 				curNode = curNode->prev;
+				if (curNode)
+					curElement = curNode->elementCount - 1;
+			}
+			else
+			{
+				curElement--;
+			}
 			return *this;
-		}
-		// Postfix -- overload
-		Iterator operator--(int)
-		{
-			Iterator iterator = *this;
-			--* this;
-			return iterator;
 		}
 
 		bool operator!=(const Iterator& iterator)

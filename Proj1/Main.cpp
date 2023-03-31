@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <string.h>
 #include "List.h"
@@ -69,24 +70,26 @@ void ReadAttributes(CssSection& section)
 
 		if (cin.peek() == ':')
 		{
-			Node<Attribute>* curAttr = section.attributes.GetFirstNode();
-			while (curAttr != nullptr)
-			{
-				Node<Attribute>* tmp = curAttr->GetNext();
-				if (curAttr->GetData().name == name)
-				{
-					section.attributes.Remove(curAttr);
-				}
-				curAttr = tmp;
-			}
-
 			cin.get();
+
 			Attribute attr;
 			attr.name = name;
 			ReadString(attr.value, ";}");
 			attr.value.RemoveEdgeWhitespace();
 
-			section.attributes.Append(attr);
+			bool attributeRepeated = false;
+			for (List<Attribute>::Iterator i = section.attributes.begin(); i != section.attributes.end(); ++i)
+			{
+				if ((*i).name == name)
+				{
+					attributeRepeated = true;
+					(*i).value = attr.value;
+					break;
+				}
+			}
+
+			if (!attributeRepeated)
+				section.attributes.Append(attr);
 		}
 
 		if (cin.peek() == ';')
@@ -146,7 +149,7 @@ void SelectorCommands(BlockList<CssSection>& css, const String& arg1, const Stri
 	{
 		// return number of selector 'arg1' for all sections
 		int count = 0;
-		for (BlockList<CssSection>::Iterator i = css.begin(); i != css.end(); i++)
+		for (BlockList<CssSection>::Iterator i = css.begin(); i != css.end(); ++i)
 		{
 			if ((*i).selectors.Contains(arg1))
 			{
@@ -177,7 +180,7 @@ void AttributeCommands(BlockList<CssSection>& css, const String& arg1, const Str
 			if (i <= css.GetLength())
 			{
 				List<Attribute> attributes = css[i - 1].attributes;
-				for (List<Attribute>::Iterator i = attributes.begin(); i != attributes.end(); i--)
+				for (List<Attribute>::Iterator i = attributes.beginReversed(); i != attributes.end(); --i)
 				{
 					if ((*i).name == arg3)
 					{
@@ -192,10 +195,10 @@ void AttributeCommands(BlockList<CssSection>& css, const String& arg1, const Str
 	{
 		// return number of attributes called 'arg1' for all sections
 		int count = 0;
-		for (BlockList<CssSection>::Iterator i = css.begin(); i != css.end(); i++)
+		for (BlockList<CssSection>::Iterator i = css.begin(); i != css.end(); ++i)
 		{
 			List<Attribute> attributes = (*i).attributes;
-			for (List<Attribute>::Iterator j = attributes.begin(); j != attributes.end(); j++)
+			for (List<Attribute>::Iterator j = attributes.begin(); j != attributes.end(); ++j)
 			{
 				if ((*j).name == arg1)
 				{
@@ -210,12 +213,12 @@ void AttributeCommands(BlockList<CssSection>& css, const String& arg1, const Str
 void EvaluateCommand(BlockList<CssSection>& css, const String& arg1, const String& arg3, String& result)
 {
 	// return value of attribute called 'arg3' for selector called 'arg1'
-	for (BlockList<CssSection>::Iterator i = css.beginReversed(); i != css.end(); i--)
+	for (BlockList<CssSection>::Iterator i = css.beginReversed(); i != css.end(); --i)
 	{
 		if ((*i).selectors.GetLength() == 0 || (*i).selectors.Contains(arg1))
 		{
 			List<Attribute> attributes = (*i).attributes;
-			for (List<Attribute>::Iterator j = attributes.beginReversed(); j != attributes.end(); j--)
+			for (List<Attribute>::Iterator j = attributes.beginReversed(); j != attributes.end(); --j)
 			{
 				if ((*j).name == arg3)
 				{

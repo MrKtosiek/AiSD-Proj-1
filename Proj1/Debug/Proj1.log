@@ -1,3 +1,2 @@
 ﻿  Main.cpp
-D:\Studia\AiSD\AiSD-Proj-1\Proj1\BlockList.h(185): warning C4715: 'BlockList<CssSection>::operator[]': not all control paths return a value
   Proj1.vcxproj -> D:\Studia\AiSD\AiSD-Proj-1\Proj1\Debug\Proj1.exe

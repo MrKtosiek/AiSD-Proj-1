@@ -39,7 +39,7 @@ public:
 	{
 		return length;
 	}
-	void Append(T data)
+	void Append(T& data)
 	{
 		if (length == 0)
 		{
@@ -184,33 +184,17 @@ public:
 			return *this;
 		}
 
-		// Prefix ++ overload
 		Iterator& operator++()
 		{
 			if (curNode)
 				curNode = curNode->next;
 			return *this;
 		}
-		// Postfix ++ overload
-		Iterator operator++(int)
-		{
-			Iterator iterator = *this;
-			++* this;
-			return iterator;
-		}
-		// Prefix -- overload
 		Iterator& operator--()
 		{
 			if (curNode)
 				curNode = curNode->prev;
 			return *this;
-		}
-		// Postfix -- overload
-		Iterator operator--(int)
-		{
-			Iterator iterator = *this;
-			--* this;
-			return iterator;
 		}
 
 		bool operator!=(const Iterator& iterator)
