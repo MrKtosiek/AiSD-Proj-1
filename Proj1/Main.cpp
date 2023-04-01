@@ -168,7 +168,7 @@ void AttributeCommands(BlockList<CssSection>& css, const String& arg1, const Str
 		}
 		else
 		{
-			// [i,A,n] return value of attribute 'n' for section 'i'
+			// [i,A,n] return value of attribute called 'n' for section 'i'
 			size_t i = arg1.ToInt();
 			if (i <= css.GetLength())
 			{

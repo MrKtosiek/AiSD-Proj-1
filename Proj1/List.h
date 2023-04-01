@@ -161,14 +161,6 @@ public:
 		swap(tmp.length, length);
 		return *this;
 	}
-	friend ostream& operator<<(ostream& ostr, const List<T>& list)
-	{
-		for (Node<T>* curNode = list.first; curNode != nullptr; curNode = curNode->GetNext())
-		{
-			ostr << curNode->GetData();
-		}
-		return ostr;
-	}
 	
 	
 	class Iterator
