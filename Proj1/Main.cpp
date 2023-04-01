@@ -118,22 +118,22 @@ void SelectorCommands(BlockList<CssSection>& css, const String& arg1, const Stri
 		if (arg3 == "?")
 		{
 			// [i,S,?] return number of selectors for section 'i'
-			size_t i = arg1.ToInt();
-			if (i <= css.GetLength())
+			size_t i = arg1.ToInt() - 1;
+			if (i < css.GetLength())
 			{
-				result = css[i - 1].selectors.GetLength();
+				result = css[i].selectors.GetLength();
 			}
 		}
 		else
 		{
 			// [i,S,j] return value of selector 'j' for section 'i'
-			size_t i = arg1.ToInt();
-			if (i <= css.GetLength())
+			size_t i = arg1.ToInt() - 1;
+			if (i < css.GetLength())
 			{
-				size_t j = arg3.ToInt();
-				if (j <= css[i - 1].selectors.GetLength())
+				size_t j = arg3.ToInt() - 1;
+				if (j < css[i].selectors.GetLength())
 				{
-					result = css[i - 1].selectors[j - 1];
+					result = css[i].selectors[j];
 				}
 			}
 		}
@@ -160,20 +160,19 @@ void AttributeCommands(BlockList<CssSection>& css, const String& arg1, const Str
 		if (arg3 == "?")
 		{
 			// [i,A,?] return number of attributes for section 'i'
-			size_t i = arg1.ToInt();
-			if (i <= css.GetLength())
+			size_t i = arg1.ToInt() - 1;
+			if (i < css.GetLength())
 			{
-				result = css[i - 1].attributes.GetLength();
+				result = css[i].attributes.GetLength();
 			}
 		}
 		else
 		{
 			// [i,A,n] return value of attribute called 'n' for section 'i'
-			size_t i = arg1.ToInt();
-			if (i <= css.GetLength())
+			size_t i = arg1.ToInt() - 1;
+			if (i < css.GetLength())
 			{
-				List<Attribute> attributes = css[i - 1].attributes;
-				for (List<Attribute>::Iterator j = attributes.beginReversed(); j != attributes.end(); --j)
+				for (List<Attribute>::Iterator j = css[i].attributes.beginReversed(); j != css[i].attributes.end(); --j)
 				{
 					if ((*j).name == arg3)
 					{
@@ -210,8 +209,7 @@ void EvaluateCommand(BlockList<CssSection>& css, const String& arg1, const Strin
 	{
 		if ((*i).selectors.GetLength() == 0 || (*i).selectors.Contains(arg1))
 		{
-			List<Attribute> attributes = (*i).attributes;
-			for (List<Attribute>::Iterator j = attributes.beginReversed(); j != attributes.end(); --j)
+			for (List<Attribute>::Iterator j = (*i).attributes.beginReversed(); j != (*i).attributes.end(); --j)
 			{
 				if ((*j).name == arg3)
 				{
@@ -228,27 +226,27 @@ void DeleteCommand(BlockList<CssSection>& css, const String& arg1, const String&
 	if (arg3 == "*")
 	{
 		// [i,D,*] remove section 'i'
-		size_t i = arg1.ToInt();
-		if (i <= css.GetLength())
+		size_t i = arg1.ToInt() - 1;
+		if (i < css.GetLength())
 		{
-			css.RemoveAt(i - 1);
+			css.RemoveAt(i);
 			result = "deleted";
 		}
 	}
 	else
 	{
 		// [i,D,n] remove attribute called 'n' in section 'i'
-		size_t i = arg1.ToInt();
-		if (i <= css.GetLength())
+		size_t i = arg1.ToInt() - 1;
+		if (i < css.GetLength())
 		{
-			for (List<Attribute>::Iterator j = css[i - 1].attributes.begin(); j != css[i - 1].attributes.end(); ++j)
+			for (List<Attribute>::Iterator j = css[i].attributes.begin(); j != css[i].attributes.end(); ++j)
 			{
 				if ((*j).name == arg3)
 				{
-					css[i - 1].attributes.Remove(j.GetCurNode());
+					css[i].attributes.Remove(j.GetCurNode());
 
-					if (css[i - 1].attributes.GetLength() == 0) // if the section has no attributes left, delete it
-						css.RemoveAt(i - 1);
+					if (css[i].attributes.GetLength() == 0) // if the section has no attributes left, delete it
+						css.RemoveAt(i);
 
 					result = "deleted";
 					return;
@@ -325,7 +323,6 @@ void ReadCommands(BlockList<CssSection>& css)
 		cin >> ws;
 	}
 }
-
 
 
 

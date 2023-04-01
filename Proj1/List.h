@@ -52,7 +52,7 @@ public:
 		{
 			// add a new node
 			Node<T>* newNode = new Node<T>(data, last, nullptr);
-			last->SetNext(newNode);
+			last->next = newNode;
 			last = newNode;
 		}
 
@@ -84,14 +84,6 @@ public:
 			}
 		}
 		return nullptr;
-	}
-	Node<T>* GetLastNode() const
-	{
-		return last;
-	}
-	Node<T>* GetFirstNode() const
-	{
-		return first;
 	}
 	void Remove(Node<T>* node)
 	{
@@ -138,14 +130,11 @@ public:
 	{
 		for (Node<T>* curNode = first; curNode != nullptr; curNode = curNode->next)
 		{
-			//cout << curNode << endl;
-			if (curNode->GetData() == data)
+			if (curNode->data == data)
 			{
-				//cout << *this << " contains char: " << data << endl;
 				return true;
 			}
 		}
-		//cout << *this << " does not contain char: " << data << endl;
 		return false;
 	}
 
@@ -156,9 +145,16 @@ public:
 	List<T>& operator=(const List<T>& orig)
 	{
 		List<T> tmp(orig);
-		swap(tmp.first, first);
-		swap(tmp.last, last);
-		swap(tmp.length, length);
+		length = tmp.length;
+
+		Node<T>* t = tmp.first;
+		tmp.first = first;
+		first = t;
+
+		t = tmp.last;
+		tmp.last = last;
+		last = t;
+
 		return *this;
 	}
 
@@ -173,12 +169,6 @@ public:
 		Node<T>* GetCurNode() const
 		{
 			return curNode;
-		}
-
-		Iterator& operator=(Node<T>* node)
-		{
-			this->curNode = node;
-			return *this;
 		}
 
 		Iterator& operator++()

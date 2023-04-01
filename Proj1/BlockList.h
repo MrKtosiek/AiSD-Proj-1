@@ -20,9 +20,11 @@ public:
 	}
 	BlockList(const BlockList<T>& orig)
 	{
+		length = orig.length;
 		for (BlockNode<T>* cur = orig.first; cur != nullptr; cur = cur->next)
 		{
-			Append(cur->data);
+			AddNode();
+			*last = *cur;
 		}
 	}
 	~BlockList()
@@ -68,7 +70,7 @@ public:
 		{
 			// add a new node
 			BlockNode<T>* newNode = new BlockNode<T>(last, nullptr);
-			last->SetNext(newNode);
+			last->next = newNode;
 			last = newNode;
 		}
 
@@ -93,41 +95,6 @@ public:
 			}
 		}
 		return nullptr;
-	}
-	BlockNode<T>* GetNodeAt(size_t pos) const
-	{
-		if (pos < blockCount * 2)
-		{
-			// search from the beginning
-			for (BlockNode<T>* curNode = first; curNode != nullptr; curNode = curNode->next)
-			{
-				if (pos == 0)
-					return curNode;
-
-				pos--;
-			}
-		}
-		else
-		{
-			// search from the end
-			pos = blockCount - pos;
-			for (BlockNode<T>* curNode = last; curNode != nullptr; curNode = curNode->prev)
-			{
-				if (pos == 0)
-					return curNode;
-
-				pos--;
-			}
-		}
-		return nullptr;
-	}
-	BlockNode<T>* GetLastNode() const
-	{
-		return last;
-	}
-	BlockNode<T>* GetFirstNode() const
-	{
-		return first;
 	}
 	
 	void RemoveNode(BlockNode<T>* node)
@@ -200,9 +167,17 @@ public:
 	BlockList<T>& operator=(const BlockList<T>& orig)
 	{
 		BlockList<T> tmp(orig);
-		swap(tmp.first, first);
-		swap(tmp.last, last);
-		swap(tmp.length, length);
+		length = tmp.length;
+		blockCount = tmp.blockCount;
+
+		BlockNode<T>* t = tmp.first;
+		tmp.first = first;
+		first = t;
+
+		t = tmp.last;
+		tmp.last = last;
+		last = t;
+
 		return *this;
 	}
 
@@ -215,10 +190,9 @@ public:
 	public:
 		Iterator(size_t curElement, BlockNode<T>* curNode) : curElement(curElement), curNode(curNode) {}
 
-		Iterator& operator=(BlockNode<T>* node)
+		BlockNode<T>* GetCurNode() const
 		{
-			this->curNode = node;
-			return *this;
+			return curNode;
 		}
 
 		Iterator& operator++()

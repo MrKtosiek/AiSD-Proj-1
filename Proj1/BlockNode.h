@@ -1,39 +1,23 @@
 #pragma once
 #include "BlockList.h"
 
-const size_t blockSize = 8;
-
 template <typename T>
 class BlockNode
 {
 private:
+	static const size_t blockSize = 8;
+
 	T data[blockSize] = {};
 	bool isUsed[blockSize] = {};
 	size_t elementCount = 0;
 	BlockNode<T>* prev = nullptr;
 	BlockNode<T>* next = nullptr;
 
+
 	BlockNode<T>(BlockNode<T>* prev, BlockNode<T>* next) : prev(prev), next(next) {}
-	BlockNode<T>(const BlockNode<T>& orig) : data(orig.data), prev(orig.prev), next(orig.next) {}
 
-	BlockNode* GetNext() const
-	{
-		return next;
-	}
-	void SetNext(BlockNode* value)
-	{
-		next = value;
-	}
-
-	BlockNode* GetPrev() const
-	{
-		return prev;
-	}
-	void SetPrev(BlockNode* value)
-	{
-		prev = value;
-	}
-
+	// returns the index of the element in the actual data array
+	// this is to handle empty spaces left in the array by removing elements
 	size_t GetRealIndex(size_t index) const
 	{
 		size_t i;
@@ -41,7 +25,6 @@ private:
 		{
 			if (isUsed[i])
 			{
-				//cout << i << " is used" << endl;
 				if (index == 0)
 					break;
 				else
@@ -88,14 +71,6 @@ private:
 		return false;
 	}
 
-	BlockNode<T>& operator=(const BlockNode<T>& orig)
-	{
-		BlockNode<T> tmp(orig);
-		swap(tmp.next, next);
-		swap(tmp.prev, prev);
-		swap(tmp.data, data);
-		return *this;
-	}
 	T& operator[](size_t index)
 	{
 		return data[GetRealIndex(index)];

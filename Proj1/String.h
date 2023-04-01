@@ -84,28 +84,31 @@ public:
 			return;
 		}
 
-		String tmp;
 		size_t start = 0;
 		size_t end = length - 1;
 
-		// skip leading whitespace
+		// count leading whitespace
 		while ((isspace(chars[start]) || chars[start] < ' ') && start < length)
 		{
 			start++;
 		}
+		// count trailing whitespace
 		while ((isspace(chars[end]) || chars[end] < ' ') && end > 0)
 		{
 			end--;
 		}
 
+		// copy the selected chars to a new array
+		length = end - start + 1;
+		capacity = length + 1;
+		char* tmpChars = new char[capacity]();
 		for (size_t i = start; i <= end; i++)
 		{
-			tmp.Append(chars[i]);
+			tmpChars[i - start] = chars[i];
 		}
 
-		swap(tmp.chars, chars);
-		swap(tmp.capacity, capacity);
-		swap(tmp.length, length);
+		delete[] chars;
+		chars = tmpChars;
 	}
 
 	bool IsInt() const
@@ -177,9 +180,11 @@ public:
 	String& operator=(const String& orig)
 	{
 		String tmp(orig);
-		swap(tmp.length, length);
-		swap(tmp.capacity, capacity);
-		swap(tmp.chars, chars);
+		length = tmp.length;
+		capacity = tmp.capacity;
+		char* t = tmp.chars;
+		tmp.chars = chars;
+		chars = t;
 		return *this;
 	}
 	friend ostream& operator<<(ostream& ostr, const String& str)
