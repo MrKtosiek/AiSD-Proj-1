@@ -42,9 +42,9 @@ void ReadSelectors(CssSection& section)
 			section.selectors.Append(str);
 		}
 
-		if (cin.peek() == ',')
+		if (cin.peek() == ',') // skip the ',' and read the next selector
 			getchar();
-		if (cin.peek() == '{')
+		if (cin.peek() == '{') // if the next char is '{' then we start reading attributes
 		{
 			getchar();
 			return;
@@ -63,7 +63,7 @@ void ReadAttributes(CssSection& section)
 
 		if (cin.peek() == ':')
 		{
-			getchar();
+			getchar(); // skip the ':' and read the attribute's value
 
 			Attribute attr;
 			attr.name = name;
@@ -85,9 +85,9 @@ void ReadAttributes(CssSection& section)
 				section.attributes.Append(attr);
 		}
 
-		if (cin.peek() == ';')
+		if (cin.peek() == ';') // skip the ';' after the attribute if there is one
 			getchar();
-		if (cin.peek() == '}')
+		if (cin.peek() == '}') // if the next char is '}' then stop reading attributes
 		{
 			getchar();
 			return;
@@ -117,7 +117,7 @@ void SelectorCommands(BlockList<CssSection>& css, const String& arg1, const Stri
 	{
 		if (arg3 == "?")
 		{
-			// return number of selectors for section i
+			// [i,S,?] return number of selectors for section 'i'
 			size_t i = arg1.ToInt();
 			if (i <= css.GetLength())
 			{
@@ -126,7 +126,7 @@ void SelectorCommands(BlockList<CssSection>& css, const String& arg1, const Stri
 		}
 		else
 		{
-			// return value of selector j for section i
+			// [i,S,j] return value of selector 'j' for section 'i'
 			size_t i = arg1.ToInt();
 			if (i <= css.GetLength())
 			{
@@ -140,7 +140,7 @@ void SelectorCommands(BlockList<CssSection>& css, const String& arg1, const Stri
 	}
 	else
 	{
-		// return number of selector 'arg1' for all sections
+		// [z,S,?] return number of selector 'z' for all sections
 		int count = 0;
 		for (BlockList<CssSection>::Iterator i = css.begin(); i != css.end(); ++i)
 		{
@@ -159,7 +159,7 @@ void AttributeCommands(BlockList<CssSection>& css, const String& arg1, const Str
 	{
 		if (arg3 == "?")
 		{
-			// return number of attributes for section i
+			// [i,A,?] return number of attributes for section 'i'
 			size_t i = arg1.ToInt();
 			if (i <= css.GetLength())
 			{
@@ -168,7 +168,7 @@ void AttributeCommands(BlockList<CssSection>& css, const String& arg1, const Str
 		}
 		else
 		{
-			// return value of attribute 'arg3' for section i
+			// [i,A,n] return value of attribute 'n' for section 'i'
 			size_t i = arg1.ToInt();
 			if (i <= css.GetLength())
 			{
@@ -186,7 +186,7 @@ void AttributeCommands(BlockList<CssSection>& css, const String& arg1, const Str
 	}
 	else
 	{
-		// return number of attributes called 'arg1' for all sections
+		// [n,A,?] return number of attributes called 'n' for all sections
 		int count = 0;
 		for (BlockList<CssSection>::Iterator i = css.begin(); i != css.end(); ++i)
 		{
@@ -205,7 +205,7 @@ void AttributeCommands(BlockList<CssSection>& css, const String& arg1, const Str
 
 void EvaluateCommand(BlockList<CssSection>& css, const String& arg1, const String& arg3, String& result)
 {
-	// return value of attribute called 'arg3' for selector called 'arg1'
+	// [z,E,n] return value of attribute called 'n' for selector called 'z'
 	for (BlockList<CssSection>::Iterator i = css.beginReversed(); i != css.end(); --i)
 	{
 		if ((*i).selectors.GetLength() == 0 || (*i).selectors.Contains(arg1))
@@ -227,7 +227,7 @@ void DeleteCommand(BlockList<CssSection>& css, const String& arg1, const String&
 {
 	if (arg3 == "*")
 	{
-		// remove section i
+		// [i,D,*] remove section 'i'
 		size_t i = arg1.ToInt();
 		if (i <= css.GetLength())
 		{
@@ -237,7 +237,7 @@ void DeleteCommand(BlockList<CssSection>& css, const String& arg1, const String&
 	}
 	else
 	{
-		// remove attribute called 'arg3' in section i
+		// [i,D,n] remove attribute called 'n' in section 'i'
 		size_t i = arg1.ToInt();
 		if (i <= css.GetLength())
 		{
@@ -247,7 +247,7 @@ void DeleteCommand(BlockList<CssSection>& css, const String& arg1, const String&
 				{
 					css[i - 1].attributes.Remove(curAttr);
 
-					if (css[i - 1].attributes.GetLength() == 0)
+					if (css[i - 1].attributes.GetLength() == 0) // if the section has no attributes left, delete it
 					{
 						css.RemoveAt(i - 1);
 					}
@@ -270,16 +270,16 @@ void ReadCommands(BlockList<CssSection>& css)
 		String arg3 = " ";
 
 		// read arguments
-		ReadString(arg1, ",\n");
-		if (cin.peek() == ',')
+		ReadString(arg1, ",\n"); // read the 1st argument
+		if (cin.peek() == ',')   // check if there is a ',' after it
 		{
-			getchar();
-			ReadString(arg2, ",\n");
-			getchar();
-			ReadString(arg3, ",\n");
+			getchar();               // skip the ','
+			ReadString(arg2, ",\n"); // read the 2nd argument
+			getchar();               // skip the ','
+			ReadString(arg3, ",\n"); // read the 3rd argument
 		}
 
-		if (arg1.GetLength() == 0)
+		if (arg1.GetLength() == 0) // if the 1st argument is empty, it's an empty line
 		{
 			ReadString(arg1, "\n");
 			cin >> ws;
@@ -289,10 +289,12 @@ void ReadCommands(BlockList<CssSection>& css)
 		// single argument commands
 		if (arg1 == "****")
 		{
+			// finish reading commands
 			return;
 		}
 		else if (arg1 == "?")
 		{
+			// print how many sections there are
 			cout << arg1 << " == " << css.GetLength() << '\n';
 		}
 		else
@@ -331,6 +333,8 @@ void ReadCommands(BlockList<CssSection>& css)
 
 void ReadInput(BlockList<CssSection>& css)
 {
+	// if the next string starts with a '?', it's the beginning of a command section
+	// otherwise, it's a CSS section
 	if ((cin >> ws).peek() == '?')
 	{
 		cin >> ws;
