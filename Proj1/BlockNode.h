@@ -8,11 +8,11 @@ class BlockNode
 {
 private:
 	T data[blockSize] = {};
+	bool isUsed[blockSize] = {};
 	size_t elementCount = 0;
 	BlockNode<T>* prev = nullptr;
 	BlockNode<T>* next = nullptr;
 
-public:
 	BlockNode<T>(BlockNode<T>* prev, BlockNode<T>* next) : prev(prev), next(next) {}
 	BlockNode<T>(const BlockNode<T>& orig) : data(orig.data), prev(orig.prev), next(orig.next) {}
 
@@ -34,22 +34,45 @@ public:
 		prev = value;
 	}
 
+	size_t GetRealIndex(size_t index) const
+	{
+		size_t i;
+		for (i = 0; i < blockSize; i++)
+		{
+			if (isUsed[i])
+			{
+				//cout << i << " is used" << endl;
+				if (index == 0)
+					break;
+				else
+					index--;
+			}
+		}
+		return i;
+	}
+
 	// check if there is space at the end of the block
 	bool IsFull() const
 	{
-		return elementCount >= blockSize;
+		return isUsed[blockSize - 1];
 	}
 	void AddElement(T& element)
 	{
-		data[elementCount] = element;
+		int i;
+		for (i = blockSize - 2; i >= 0; i--)
+		{
+			if (isUsed[i])
+			{
+				break;
+			}
+		}
+		data[i + 1] = element;
+		isUsed[i + 1] = true;
 		elementCount++;
 	}
 	void RemoveElement(size_t index)
 	{
-		for (size_t i = index; i < elementCount - 1; i++)
-		{
-			swap(data[i], data[i + 1]);
-		}
+		isUsed[GetRealIndex(index)] = false;
 		elementCount--;
 	}
 
@@ -57,7 +80,7 @@ public:
 	{
 		for (size_t i = 0; i < elementCount; i++)
 		{
-			if (data[i] == element)
+			if (data[GetRealIndex(i)] == element)
 			{
 				return true;
 			}
@@ -75,7 +98,7 @@ public:
 	}
 	T& operator[](size_t index)
 	{
-		return data[index];
+		return data[GetRealIndex(index)];
 	}
 
 	template <typename T>

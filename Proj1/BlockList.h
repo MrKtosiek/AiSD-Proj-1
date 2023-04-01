@@ -184,14 +184,11 @@ public:
 	{
 		for (BlockNode<T>* curNode = first; curNode != nullptr; curNode = curNode->next)
 		{
-			//cout << curNode << endl;
 			if (curNode->Contains(data))
 			{
-				//cout << *this << " contains char: " << data << endl;
 				return true;
 			}
 		}
-		//cout << *this << " does not contain char: " << data << endl;
 		return false;
 	}
 

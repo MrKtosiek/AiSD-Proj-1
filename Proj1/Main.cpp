@@ -241,16 +241,14 @@ void DeleteCommand(BlockList<CssSection>& css, const String& arg1, const String&
 		size_t i = arg1.ToInt();
 		if (i <= css.GetLength())
 		{
-			for (Node<Attribute>* curAttr = css[i - 1].attributes.GetFirstNode(); curAttr != nullptr; curAttr = curAttr->GetNext())
+			for (List<Attribute>::Iterator j = css[i - 1].attributes.begin(); j != css[i - 1].attributes.end(); ++j)
 			{
-				if (curAttr->GetData().name == arg3)
+				if ((*j).name == arg3)
 				{
-					css[i - 1].attributes.Remove(curAttr);
+					css[i - 1].attributes.Remove(j.GetCurNode());
 
 					if (css[i - 1].attributes.GetLength() == 0) // if the section has no attributes left, delete it
-					{
 						css.RemoveAt(i - 1);
-					}
 
 					result = "deleted";
 					return;

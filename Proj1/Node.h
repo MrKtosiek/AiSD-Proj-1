@@ -9,7 +9,6 @@ private:
 	Node<T>* prev = nullptr;
 	Node<T>* next = nullptr;
 
-public:
 	Node<T>(const T& data, Node<T>* prev, Node<T>* next) : data(data), prev(prev), next(next) {}
 	Node<T>(const Node<T>& orig) : data(orig.data), prev(orig.prev), next(orig.next) {}
 

@@ -161,7 +161,7 @@ public:
 		swap(tmp.length, length);
 		return *this;
 	}
-	
+
 	
 	class Iterator
 	{
@@ -169,6 +169,11 @@ public:
 		Node<T>* curNode;
 	public:
 		explicit Iterator(Node<T>* curNode) : curNode(curNode) {}
+
+		Node<T>* GetCurNode() const
+		{
+			return curNode;
+		}
 
 		Iterator& operator=(Node<T>* node)
 		{
